@@ -87,7 +87,6 @@ export default function GroupDashboard() {
     setCurrentMember(me)
     setLoading(false)
 
-    // Show toast for new expenses from other members
     if (prevExpenseCountRef.current > 0 && expensesData.length > prevExpenseCountRef.current) {
       const newest = expensesData[0]
       if (newest && newest.paid_by !== savedMemberId) {
@@ -102,7 +101,6 @@ export default function GroupDashboard() {
     loadData()
   }, [loadData])
 
-  // Realtime subscriptions
   useEffect(() => {
     if (!group) return
 
@@ -137,7 +135,6 @@ export default function GroupDashboard() {
     splitCounts.set(s.expense_id, (splitCounts.get(s.expense_id) || 0) + 1)
   }
 
-  // Get split member IDs for editing expense
   const getExpenseSplitMemberIds = (expenseId: string): string[] => {
     return splits.filter((s) => s.expense_id === expenseId).map((s) => s.member_id)
   }
@@ -173,23 +170,58 @@ export default function GroupDashboard() {
   }
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
-    { key: 'expenses', label: 'Gastos', icon: <Receipt size={16} /> },
-    { key: 'balances', label: 'Balances', icon: <Scale size={16} /> },
-    { key: 'summary', label: 'Resumen', icon: <PieChart size={16} /> },
+    { key: 'expenses', label: 'Gastos', icon: <Receipt size={20} /> },
+    { key: 'balances', label: 'Balances', icon: <Scale size={20} /> },
+    { key: 'summary', label: 'Resumen', icon: <PieChart size={20} /> },
   ]
 
   if (loading) {
     return (
-      <div className="min-h-dvh flex items-center justify-center">
-        <Loader2 size={32} className="animate-spin text-primary" />
+      <div className="min-h-dvh flex flex-col bg-bg pb-28">
+        <header className="px-4 pt-6 pb-4">
+          <div className="max-w-lg mx-auto">
+            <div className="w-48 h-7 skeleton mb-2" />
+            <div className="w-32 h-4 skeleton" />
+          </div>
+        </header>
+        <div className="px-4 mb-4">
+          <div className="max-w-lg mx-auto glass rounded-2xl p-4">
+            <div className="w-24 h-3 skeleton mb-3" />
+            <div className="w-36 h-8 skeleton mb-2" />
+            <div className="w-28 h-3 skeleton" />
+          </div>
+        </div>
+        <div className="px-4 max-w-lg mx-auto w-full space-y-2">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="glass rounded-2xl p-3 flex items-center gap-3">
+              <div className="w-10 h-10 skeleton rounded-xl" />
+              <div className="flex-1">
+                <div className="w-32 h-4 skeleton mb-2" />
+                <div className="w-24 h-3 skeleton" />
+              </div>
+              <div className="w-16 h-5 skeleton" />
+            </div>
+          ))}
+        </div>
+        {/* Bottom nav skeleton */}
+        <div className="bottom-nav">
+          <div className="max-w-lg mx-auto flex justify-around px-4 py-2">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex flex-col items-center gap-1">
+                <div className="w-5 h-5 skeleton rounded" />
+                <div className="w-10 h-2 skeleton" />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-dvh flex flex-col bg-bg pb-20">
+    <div className="min-h-dvh flex flex-col bg-bg pb-28">
       {/* Header */}
-      <header className="px-4 pt-6 pb-4">
+      <header className="px-4 pt-6 pb-4 animate-[fadeInUp_0.4s_ease-out_both]">
         <div className="max-w-lg mx-auto flex items-start justify-between">
           <div>
             <h1 className="text-2xl font-black italic bg-gradient-to-r from-primary-light to-secondary bg-clip-text text-transparent">
@@ -202,12 +234,12 @@ export default function GroupDashboard() {
           <div className="flex items-center gap-2">
             <button
               onClick={handleShare}
-              className="flex items-center justify-center w-9 h-9 bg-bg-card border border-border rounded-full text-text-secondary hover:text-text transition-colors"
+              className="flex items-center justify-center w-9 h-9 glass rounded-full text-text-secondary hover:text-text transition-colors btn-press"
               title="Compartir grupo"
             >
               <Share2 size={14} />
             </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-bg-card border border-border rounded-full text-sm text-text-secondary hover:text-text transition-colors">
+            <button className="flex items-center gap-1.5 px-3 py-1.5 glass rounded-full text-sm text-text-secondary hover:text-text transition-colors">
               <Users size={14} />
               {members.length}
             </button>
@@ -216,33 +248,16 @@ export default function GroupDashboard() {
       </header>
 
       {/* Total card */}
-      <div className="px-4 mb-4">
-        <div className="max-w-lg mx-auto bg-gradient-to-br from-bg-card to-[#1a1f35] border border-border rounded-2xl p-4">
-          <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Gasto total del grupo</p>
-          <p className="text-3xl font-black text-text">{formatCurrency(dashboard.totalExpenses)}</p>
-          <p className="text-text-muted text-sm mt-1">
+      <div className="px-4 mb-5 animate-[fadeInUp_0.4s_ease-out_0.05s_both]">
+        <div className="max-w-lg mx-auto glass-strong rounded-2xl p-4 relative overflow-hidden">
+          {/* Inner glow accent */}
+          <div className="absolute top-0 right-0 w-40 h-40 bg-primary/8 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-secondary/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/4" />
+          <p className="text-text-muted text-xs uppercase tracking-wider mb-1 relative">Gasto total del grupo</p>
+          <p className="text-3xl font-black text-text tabular-nums relative">{formatCurrency(dashboard.totalExpenses)}</p>
+          <p className="text-text-muted text-sm mt-1 tabular-nums relative">
             &asymp; {formatCurrency(dashboard.perPerson)} por persona
           </p>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="px-4 mb-4">
-        <div className="max-w-lg mx-auto flex gap-2">
-          {tabs.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                activeTab === tab.key
-                  ? 'bg-primary/20 text-primary-light border border-primary/30'
-                  : 'bg-bg-card text-text-secondary border border-border hover:border-border-light'
-              }`}
-            >
-              {tab.icon}
-              {tab.label}
-            </button>
-          ))}
         </div>
       </div>
 
@@ -280,15 +295,35 @@ export default function GroupDashboard() {
         )}
       </main>
 
-      {/* FAB */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2">
+      {/* FAB - positioned above bottom nav */}
+      <div className="fab-container">
         <button
           onClick={() => { setEditingExpense(null); setShowAddExpense(true) }}
-          className="w-14 h-14 flex items-center justify-center rounded-full bg-gradient-to-r from-primary to-secondary shadow-lg shadow-primary/30 text-white hover:scale-105 transition-transform"
+          className="w-14 h-14 flex items-center justify-center rounded-full bg-gradient-to-r from-primary to-secondary text-white hover:scale-105 active:scale-95 transition-transform animate-[pulse-glow_3s_ease-in-out_infinite]"
         >
           <Plus size={28} />
         </button>
       </div>
+
+      {/* Bottom Navigation Bar */}
+      <nav className="bottom-nav">
+        <div className="max-w-lg mx-auto flex justify-around items-center px-2">
+          {tabs.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`bottom-nav-item flex-1 ${
+                activeTab === tab.key
+                  ? 'active text-primary-light'
+                  : 'text-text-muted'
+              }`}
+            >
+              {tab.icon}
+              <span>{tab.label}</span>
+            </button>
+          ))}
+        </div>
+      </nav>
 
       {/* Add/Edit expense modal */}
       {showAddExpense && group && currentMember && (

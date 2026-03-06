@@ -19,23 +19,238 @@
   --color-border-light: #334155;
 }
 
+/* ─── Base ─── */
 body {
   margin: 0;
   background-color: var(--color-bg);
   color: var(--color-text);
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
   min-height: 100dvh;
+  position: relative;
 }
 
 input[type="date"] {
   color-scheme: dark;
 }
 
+/* ─── Tabular numbers for financial data ─── */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Glassmorphism ─── */
+.glass {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-hover {
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+.glass-hover:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.glass-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.2s ease;
+}
+.glass-input:focus {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(124, 58, 237, 0.5);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15), 0 0 24px rgba(124, 58, 237, 0.1);
+}
+
+/* ─── Background Orbs (bigger, more visible, Lemon-style ambient glow) ─── */
+.bg-orbs {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.bg-orb {
+  position: absolute;
+  border-radius: 50%;
+}
+
+/* Top ambient glow - like Lemon's green top glow but purple */
+.bg-orb-1 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.3) 0%, rgba(124, 58, 237, 0.08) 40%, transparent 70%);
+  top: -25%;
+  left: 50%;
+  transform: translateX(-50%);
+  filter: blur(60px);
+  animation: float-1 22s ease-in-out infinite;
+}
+
+/* Left-bottom indigo glow */
+.bg-orb-2 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 65%);
+  bottom: -5%;
+  left: -20%;
+  filter: blur(80px);
+  animation: float-2 28s ease-in-out infinite;
+}
+
+/* Center subtle accent */
+.bg-orb-3 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(167, 139, 250, 0.12) 0%, transparent 65%);
+  top: 45%;
+  right: -10%;
+  filter: blur(70px);
+  animation: float-3 20s ease-in-out infinite;
+}
+
+/* ─── Light sweep / loop (Lemon-style ambient light lines) ─── */
+.light-sweep {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.light-sweep::before {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 120px;
+  top: 15%;
+  left: -50%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(124, 58, 237, 0.04) 20%,
+    rgba(167, 139, 250, 0.07) 50%,
+    rgba(99, 102, 241, 0.04) 80%,
+    transparent 100%
+  );
+  transform: rotate(-8deg);
+  animation: sweep 12s ease-in-out infinite;
+  filter: blur(30px);
+}
+
+.light-sweep::after {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 80px;
+  bottom: 25%;
+  left: -50%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(99, 102, 241, 0.03) 30%,
+    rgba(124, 58, 237, 0.06) 50%,
+    rgba(167, 139, 250, 0.03) 70%,
+    transparent 100%
+  );
+  transform: rotate(5deg);
+  animation: sweep-reverse 16s ease-in-out infinite;
+  filter: blur(25px);
+}
+
+/* ─── Noise texture ─── */
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.02;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* ─── Glow effects ─── */
+.glow-primary {
+  box-shadow: 0 0 24px rgba(124, 58, 237, 0.25);
+}
+
+.glow-primary-strong {
+  box-shadow: 0 0 32px rgba(124, 58, 237, 0.35), 0 0 64px rgba(124, 58, 237, 0.1);
+}
+
+.glow-success {
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+}
+
+.glow-danger {
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+}
+
+/* ─── Bottom Nav Bar (Lemon-style) ─── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  padding-bottom: env(safe-area-inset-bottom);
+  background: rgba(10, 14, 26, 0.8);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 0;
+  font-size: 11px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.bottom-nav-item.active::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 25%;
+  right: 25%;
+  height: 2px;
+  background: linear-gradient(90deg, #7C3AED, #A78BFA);
+  border-radius: 0 0 4px 4px;
+}
+
+/* ─── FAB above bottom nav ─── */
+.fab-container {
+  position: fixed;
+  bottom: calc(68px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 41;
+}
+
+/* ─── Keyframes ─── */
 @keyframes slideDown {
   from {
     opacity: 0;
@@ -45,4 +260,91 @@ input[type="date"] {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float-1 {
+  0%, 100% { transform: translateX(-50%) translate(0, 0) scale(1); }
+  33% { transform: translateX(-50%) translate(-40px, 30px) scale(1.08); }
+  66% { transform: translateX(-50%) translate(30px, -20px) scale(0.95); }
+}
+
+@keyframes float-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(50px, -40px) scale(1.1); }
+  66% { transform: translate(-30px, 20px) scale(0.92); }
+}
+
+@keyframes float-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-40px, -30px) scale(1.05); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.3), 0 0 40px rgba(124, 58, 237, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(124, 58, 237, 0.5), 0 0 60px rgba(124, 58, 237, 0.2);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes sweep {
+  0%, 100% { transform: rotate(-8deg) translateX(-15%); opacity: 0.6; }
+  50% { transform: rotate(-8deg) translateX(15%); opacity: 1; }
+}
+
+@keyframes sweep-reverse {
+  0%, 100% { transform: rotate(5deg) translateX(10%); opacity: 0.5; }
+  50% { transform: rotate(5deg) translateX(-10%); opacity: 1; }
+}
+
+/* ─── Skeleton loading ─── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 25%,
+    rgba(255, 255, 255, 0.07) 50%,
+    rgba(255, 255, 255, 0.03) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+  border-radius: 12px;
+}
+
+/* ─── Gradient progress bar glow ─── */
+.progress-bar-success {
+  background: linear-gradient(90deg, #10B981 0%, #34D399 100%);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+.progress-bar-danger {
+  background: linear-gradient(90deg, #EF4444 0%, #F87171 100%);
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+}
+
+/* ─── Button interactions ─── */
+.btn-press {
+  transition: all 0.2s ease;
+}
+.btn-press:hover {
+  transform: scale(1.02);
+}
+.btn-press:active {
+  transform: scale(0.97);
 }
