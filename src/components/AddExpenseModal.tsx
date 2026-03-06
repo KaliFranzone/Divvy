@@ -97,7 +97,6 @@ export default function AddExpenseModal({ groupId, members, currentMemberId, onC
     const amountCents = pesosToCents(parseFloat(amount))
 
     if (editingExpense) {
-      // Update existing expense
       const { error: updateError } = await supabase
         .from('expenses')
         .update({
@@ -115,7 +114,6 @@ export default function AddExpenseModal({ groupId, members, currentMemberId, onC
         return
       }
 
-      // Delete old splits and insert new ones
       await supabase.from('expense_splits').delete().eq('expense_id', editingExpense.id)
 
       const splitAmount = Math.floor(amountCents / splitBetween.length)
@@ -136,7 +134,6 @@ export default function AddExpenseModal({ groupId, members, currentMemberId, onC
 
       showToast('Gasto actualizado', 'success')
     } else {
-      // Create new expense
       const { data: expense, error: expError } = await supabase
         .from('expenses')
         .insert({
@@ -186,18 +183,19 @@ export default function AddExpenseModal({ groupId, members, currentMemberId, onC
     <div className="fixed inset-0 z-50 flex items-end justify-center">
       {/* Backdrop */}
       <div
-        className={`absolute inset-0 bg-black/70 transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+        className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
         onClick={handleClose}
       />
 
       {/* Sheet */}
       <div
         ref={sheetRef}
-        className={`relative w-full max-w-md bg-bg-card border-t border-border-light rounded-t-2xl max-h-[92dvh] overflow-y-auto transition-transform duration-300 ${isVisible && !isLeaving ? 'translate-y-0' : 'translate-y-full'} ease-[cubic-bezier(0.32,0.72,0,1)]`}
+        className={`relative w-full max-w-md glass border-t border-white/[0.08] rounded-t-3xl max-h-[92dvh] overflow-y-auto transition-transform duration-300 ${isVisible && !isLeaving ? 'translate-y-0' : 'translate-y-full'} ease-[cubic-bezier(0.32,0.72,0,1)]`}
+        style={{ background: 'rgba(17, 24, 39, 0.95)', backdropFilter: 'blur(40px)' }}
       >
         {/* Drag handle */}
-        <div className="sticky top-0 z-10 flex justify-center pt-3 pb-2 bg-bg-card">
-          <div className="w-10 h-1 rounded-full bg-border-light" />
+        <div className="sticky top-0 z-10 flex justify-center pt-3 pb-2" style={{ background: 'rgba(17, 24, 39, 0.95)' }}>
+          <div className="w-10 h-1 rounded-full bg-white/10" />
         </div>
 
         <div className="px-5 pb-5">
@@ -214,7 +212,7 @@ export default function AddExpenseModal({ groupId, members, currentMemberId, onC
                 placeholder="Ej: Cena en la playa"
                 maxLength={80}
                 autoFocus
-                className={`w-full py-3 px-4 bg-bg-input border rounded-xl text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 ${validationErrors.description ? 'border-danger' : 'border-border-light'}`}
+                className={`w-full py-3 px-4 glass-input rounded-2xl text-text placeholder:text-text-muted focus:outline-none ${validationErrors.description ? 'border-danger!' : ''}`}
               />
               {validationErrors.description && <p className="text-danger text-xs">{validationErrors.description}</p>}
             </div>
@@ -232,7 +230,7 @@ export default function AddExpenseModal({ groupId, members, currentMemberId, onC
                   min="1"
                   max="99999999"
                   step="1"
-                  className={`w-full py-3 pl-8 pr-4 bg-bg-input border rounded-xl text-text text-lg font-semibold placeholder:text-text-muted placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${validationErrors.amount ? 'border-danger' : 'border-border-light'}`}
+                  className={`w-full py-3 pl-8 pr-4 glass-input rounded-2xl text-text text-lg font-semibold tabular-nums placeholder:text-text-muted placeholder:font-normal focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${validationErrors.amount ? 'border-danger!' : ''}`}
                 />
               </div>
               {validationErrors.amount && <p className="text-danger text-xs">{validationErrors.amount}</p>}
@@ -247,10 +245,10 @@ export default function AddExpenseModal({ groupId, members, currentMemberId, onC
                     key={m.id}
                     type="button"
                     onClick={() => setPaidBy(m.id)}
-                    className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-all ${
+                    className={`px-3.5 py-2 rounded-xl text-sm font-medium transition-all btn-press ${
                       paidBy === m.id
                         ? 'bg-text text-bg ring-1 ring-text'
-                        : 'bg-bg-input text-text-secondary border border-border-light hover:border-text-muted'
+                        : 'glass text-text-secondary hover:text-text'
                     }`}
                   >
                     {getMemberLabel(m.id)}
@@ -268,10 +266,10 @@ export default function AddExpenseModal({ groupId, members, currentMemberId, onC
                     key={cat}
                     type="button"
                     onClick={() => setCategory(cat)}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-all btn-press ${
                       category === cat
-                        ? 'bg-primary/20 text-primary-light ring-1 ring-primary/40'
-                        : 'bg-bg-input text-text-secondary border border-border-light hover:border-text-muted'
+                        ? 'bg-primary/20 text-primary-light ring-1 ring-primary/30'
+                        : 'glass text-text-secondary hover:text-text'
                     }`}
                   >
                     <span>{CATEGORY_EMOJIS[cat]}</span>
@@ -288,10 +286,10 @@ export default function AddExpenseModal({ groupId, members, currentMemberId, onC
                 <button
                   type="button"
                   onClick={selectAll}
-                  className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-all ${
+                  className={`px-3.5 py-2 rounded-xl text-sm font-medium transition-all btn-press ${
                     splitBetween.length === members.length
-                      ? 'bg-success text-white ring-1 ring-success'
-                      : 'bg-bg-input text-text-secondary border border-border-light hover:border-text-muted'
+                      ? 'bg-success text-white ring-1 ring-success glow-success'
+                      : 'glass text-text-secondary hover:text-text'
                   }`}
                 >
                   Todos
@@ -303,10 +301,10 @@ export default function AddExpenseModal({ groupId, members, currentMemberId, onC
                       key={m.id}
                       type="button"
                       onClick={() => toggleMember(m.id)}
-                      className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-all ${
+                      className={`px-3.5 py-2 rounded-xl text-sm font-medium transition-all btn-press ${
                         selected
-                          ? 'bg-success/20 text-success ring-1 ring-success/40'
-                          : 'bg-bg-input text-text-muted border border-border-light hover:border-text-muted'
+                          ? 'bg-success/20 text-success ring-1 ring-success/30'
+                          : 'glass text-text-muted hover:text-text'
                       }`}
                     >
                       {getMemberLabel(m.id)}
@@ -316,7 +314,7 @@ export default function AddExpenseModal({ groupId, members, currentMemberId, onC
               </div>
               {validationErrors.split && <p className="text-danger text-xs">{validationErrors.split}</p>}
               {splitBetween.length > 0 && amount && parseFloat(amount) > 0 && (
-                <p className="text-xs text-text-muted mt-1">
+                <p className="text-xs text-text-muted mt-1 tabular-nums">
                   ${Math.round(parseFloat(amount) / splitBetween.length).toLocaleString('es-AR')} por persona
                 </p>
               )}
@@ -328,7 +326,7 @@ export default function AddExpenseModal({ groupId, members, currentMemberId, onC
             <button
               type="submit"
               disabled={saving}
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-secondary hover:from-primary-hover disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-4 px-4 rounded-2xl transition-all text-base"
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-secondary hover:from-primary-hover disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-4 px-4 rounded-2xl btn-press glow-primary text-base"
             >
               {saving ? <Loader2 size={18} className="animate-spin" /> : null}
               {saving ? 'Guardando...' : editingExpense ? 'Guardar cambios' : 'Agregar gasto'}

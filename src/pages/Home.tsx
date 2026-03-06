@@ -52,8 +52,8 @@ export default function Home() {
     <div className="min-h-dvh flex flex-col items-center justify-center px-4 py-8">
       <div className="w-full max-w-sm space-y-8">
         {/* Logo */}
-        <div className="text-center space-y-3">
-          <img src="/icon-192.svg" alt="Divvy" className="w-20 h-20 rounded-2xl shadow-lg shadow-primary/25 mx-auto" />
+        <div className="text-center space-y-3 animate-[fadeInUp_0.5s_ease-out_both]">
+          <img src="/icon-192.svg" alt="Divvy" className="w-20 h-20 rounded-2xl shadow-lg shadow-primary/30 mx-auto" />
           <h1 className="text-4xl font-black italic bg-gradient-to-r from-primary-light to-secondary bg-clip-text text-transparent">
             Divvy
           </h1>
@@ -66,13 +66,13 @@ export default function Home() {
         {!showCreate ? (
           <button
             onClick={() => setShowCreate(true)}
-            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-secondary hover:from-primary-hover hover:to-primary text-white font-semibold py-3.5 px-4 rounded-xl transition-all shadow-lg shadow-primary/20"
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-secondary hover:from-primary-hover hover:to-primary text-white font-semibold py-3.5 px-4 rounded-2xl btn-press glow-primary animate-[fadeInUp_0.5s_ease-out_0.1s_both]"
           >
             <Plus size={20} />
             Crear grupo de viaje
           </button>
         ) : (
-          <form onSubmit={handleCreate} className="space-y-3 bg-bg-card border border-border rounded-2xl p-4">
+          <form onSubmit={handleCreate} className="space-y-3 glass rounded-2xl p-4 animate-[fadeInUp_0.3s_ease-out_both]">
             <h3 className="font-semibold text-sm text-text-secondary uppercase tracking-wider">Nuevo grupo</h3>
             <input
               type="text"
@@ -81,7 +81,7 @@ export default function Home() {
               placeholder="Nombre del grupo"
               maxLength={50}
               autoFocus
-              className="w-full py-3 px-4 bg-bg-input border border-border rounded-xl text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full py-3 px-4 glass-input rounded-2xl text-text placeholder:text-text-muted focus:outline-none"
             />
             <div className="relative">
               <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" />
@@ -91,7 +91,7 @@ export default function Home() {
                 onChange={(e) => setDestination(e.target.value)}
                 placeholder="Destino (ej: Costa, Bariloche...)"
                 maxLength={50}
-                className="w-full py-3 pl-10 pr-4 bg-bg-input border border-border rounded-xl text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full py-3 pl-10 pr-4 glass-input rounded-2xl text-text placeholder:text-text-muted focus:outline-none"
               />
             </div>
             <div className="grid grid-cols-2 gap-2">
@@ -101,7 +101,7 @@ export default function Home() {
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full py-3 pl-9 pr-2 bg-bg-input border border-border rounded-xl text-text text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full py-3 pl-9 pr-2 glass-input rounded-2xl text-text text-sm focus:outline-none"
                 />
               </div>
               <div className="relative">
@@ -110,7 +110,7 @@ export default function Home() {
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full py-3 pl-9 pr-2 bg-bg-input border border-border rounded-xl text-text text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full py-3 pl-9 pr-2 glass-input rounded-2xl text-text text-sm focus:outline-none"
                 />
               </div>
             </div>
@@ -119,14 +119,14 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => setShowCreate(false)}
-                className="flex-1 py-3 px-4 border border-border rounded-xl text-text-secondary hover:text-text hover:border-border-light transition-colors"
+                className="flex-1 py-3 px-4 glass rounded-2xl text-text-secondary hover:text-text transition-colors btn-press"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={!groupName.trim() || loading}
-                className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-secondary hover:from-primary-hover disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-xl transition-all"
+                className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-secondary hover:from-primary-hover disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-2xl btn-press glow-primary"
               >
                 {loading ? <Loader2 size={18} className="animate-spin" /> : <Plus size={18} />}
                 {loading ? 'Creando...' : 'Crear'}
@@ -136,26 +136,26 @@ export default function Home() {
         )}
 
         {/* Separador */}
-        <div className="flex items-center gap-3">
-          <div className="flex-1 h-px bg-border" />
+        <div className="flex items-center gap-3 animate-[fadeInUp_0.5s_ease-out_0.2s_both]">
+          <div className="flex-1 h-px bg-white/[0.06]" />
           <span className="text-text-muted text-sm">o unite a uno existente</span>
-          <div className="flex-1 h-px bg-border" />
+          <div className="flex-1 h-px bg-white/[0.06]" />
         </div>
 
         {/* Unirse con código */}
-        <form onSubmit={handleJoin} className="space-y-3">
+        <form onSubmit={handleJoin} className="space-y-3 animate-[fadeInUp_0.5s_ease-out_0.3s_both]">
           <input
             type="text"
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase())}
             placeholder="Código de 6 caracteres"
             maxLength={6}
-            className="w-full text-center text-2xl tracking-[0.3em] font-mono py-3 px-4 bg-bg-input border border-border rounded-xl text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent placeholder:text-sm placeholder:tracking-normal placeholder:text-text-muted"
+            className="w-full text-center text-2xl tracking-[0.3em] font-mono py-3 px-4 glass-input rounded-2xl text-text focus:outline-none placeholder:text-sm placeholder:tracking-normal placeholder:text-text-muted"
           />
           <button
             type="submit"
             disabled={code.trim().length !== 6}
-            className="w-full flex items-center justify-center gap-2 bg-bg-card border border-border hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed text-text font-semibold py-3 px-4 rounded-xl transition-all"
+            className="w-full flex items-center justify-center gap-2 glass glass-hover disabled:opacity-40 disabled:cursor-not-allowed text-text font-semibold py-3 px-4 rounded-2xl btn-press"
           >
             <LogIn size={20} />
             Unirme al grupo

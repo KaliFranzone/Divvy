@@ -52,7 +52,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className="pointer-events-auto flex items-center gap-2.5 px-4 py-3 bg-bg-card border border-border-light rounded-xl shadow-lg shadow-black/30 animate-[slideDown_0.3s_ease-out]"
+            className="pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-lg shadow-black/20 animate-[slideDown_0.3s_ease-out]"
+            style={{
+              background: 'rgba(17, 24, 39, 0.85)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+            }}
           >
             {icons[toast.type]}
             <p className="text-sm text-text flex-1">{toast.message}</p>

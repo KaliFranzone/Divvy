@@ -39,7 +39,6 @@ export default function BalancesTab({ memberBalances, transfers, members, groupI
   const memberMap = new Map(members.map((m) => [m.id, m]))
   const [settled, setSettled] = useState<Set<string>>(() => loadSettled(groupId))
 
-  // Sync settled state when transfers change (remove stale entries)
   useEffect(() => {
     const validKeys = new Set(transfers.map(transferKey))
     const newSettled = new Set([...settled].filter((k) => validKeys.has(k)))
@@ -67,10 +66,10 @@ export default function BalancesTab({ memberBalances, transfers, members, groupI
 
   if (memberBalances.length === 0 || memberBalances.every((b) => b.net === 0)) {
     return (
-      <div className="text-center py-16">
-        <Scale size={48} className="mx-auto mb-3 text-text-muted opacity-40" />
-        <p className="font-medium text-text-secondary">Sin balances</p>
-        <p className="text-sm text-text-muted">Agrega gastos para ver quien le debe a quien</p>
+      <div className="text-center py-20">
+        <Scale size={52} className="mx-auto mb-4 text-text-muted opacity-30" />
+        <p className="font-medium text-text-secondary text-lg">Sin balances</p>
+        <p className="text-sm text-text-muted mt-1">Agrega gastos para ver quien le debe a quien</p>
       </div>
     )
   }
@@ -85,14 +84,18 @@ export default function BalancesTab({ memberBalances, transfers, members, groupI
         <h3 className="text-sm font-semibold text-text-secondary uppercase tracking-wider">Balance por persona</h3>
         {memberBalances
           .sort((a, b) => b.net - a.net)
-          .map((balance) => {
+          .map((balance, index) => {
             const member = memberMap.get(balance.memberId)
             if (!member) return null
             const isPositive = balance.net >= 0
             const barWidth = Math.max((Math.abs(balance.net) / maxAbs) * 100, 2)
 
             return (
-              <div key={balance.memberId} className="bg-bg-card border border-border rounded-xl p-3">
+              <div
+                key={balance.memberId}
+                className="glass rounded-2xl p-3 animate-[fadeInUp_0.35s_ease-out_both]"
+                style={{ animationDelay: `${index * 0.06}s` }}
+              >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span
@@ -101,17 +104,17 @@ export default function BalancesTab({ memberBalances, transfers, members, groupI
                     />
                     <span className="font-medium text-sm">{member.name}</span>
                   </div>
-                  <span className={`font-bold text-sm ${isPositive ? 'text-success' : 'text-danger'}`}>
+                  <span className={`font-bold text-sm tabular-nums ${isPositive ? 'text-success' : 'text-danger'}`}>
                     {isPositive ? '+' : ''}{formatCurrency(balance.net)}
                   </span>
                 </div>
-                <div className="h-2 bg-bg-input rounded-full overflow-hidden">
+                <div className="h-2 bg-white/[0.04] rounded-full overflow-hidden">
                   <div
-                    className={`h-full rounded-full transition-all ${isPositive ? 'bg-success' : 'bg-danger'}`}
+                    className={`h-full rounded-full transition-all duration-700 ease-out ${isPositive ? 'progress-bar-success' : 'progress-bar-danger'}`}
                     style={{ width: `${barWidth}%` }}
                   />
                 </div>
-                <div className="flex justify-between mt-1 text-xs text-text-muted">
+                <div className="flex justify-between mt-1.5 text-xs text-text-muted tabular-nums">
                   <span>Pago {formatCurrency(balance.totalPaid)}</span>
                   <span>Le toca {formatCurrency(balance.totalOwed)}</span>
                 </div>
@@ -128,7 +131,7 @@ export default function BalancesTab({ memberBalances, transfers, members, groupI
               Transferencias para saldar ({transfers.length})
             </h3>
             {allSettled && (
-              <span className="text-xs font-medium text-success bg-success/10 px-2 py-0.5 rounded-full">
+              <span className="text-xs font-medium text-success bg-success/10 px-2.5 py-1 rounded-full glow-success">
                 Todo saldado
               </span>
             )}
@@ -144,11 +147,11 @@ export default function BalancesTab({ memberBalances, transfers, members, groupI
                 <div
                   key={idx}
                   onClick={() => toggleSettled(t)}
-                  className={`flex items-center gap-3 bg-bg-card border rounded-xl p-3 cursor-pointer transition-all ${
-                    isSettled ? 'border-success/30 opacity-60' : 'border-border hover:border-border-light'
+                  className={`flex items-center gap-3 glass rounded-2xl p-3 cursor-pointer transition-all btn-press animate-[fadeInUp_0.35s_ease-out_both] ${
+                    isSettled ? 'border-success/20 opacity-60' : 'glass-hover'
                   }`}
+                  style={{ animationDelay: `${idx * 0.06}s` }}
                 >
-                  {/* Settled toggle */}
                   <div className="shrink-0">
                     {isSettled ? (
                       <CheckCircle2 size={20} className="text-success" />
@@ -168,7 +171,7 @@ export default function BalancesTab({ memberBalances, transfers, members, groupI
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <ArrowRight size={14} className="text-text-muted" />
-                    <span className={`font-bold text-sm ${isSettled ? 'text-text-muted line-through' : 'text-accent'}`}>
+                    <span className={`font-bold text-sm tabular-nums ${isSettled ? 'text-text-muted line-through' : 'text-accent'}`}>
                       {formatCurrency(t.amount)}
                     </span>
                     <ArrowRight size={14} className="text-text-muted" />

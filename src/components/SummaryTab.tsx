@@ -134,10 +134,10 @@ ${transferRows ? `<h2>Transferencias para saldar</h2>
 
   if (totalExpenses === 0) {
     return (
-      <div className="text-center py-16">
-        <PieChart size={48} className="mx-auto mb-3 text-text-muted opacity-40" />
-        <p className="font-medium text-text-secondary">Resumen por categoria</p>
-        <p className="text-sm text-text-muted">Se completara con datos de gastos</p>
+      <div className="text-center py-20">
+        <PieChart size={52} className="mx-auto mb-4 text-text-muted opacity-30" />
+        <p className="font-medium text-text-secondary text-lg">Resumen por categoria</p>
+        <p className="text-sm text-text-muted mt-1">Se completara con datos de gastos</p>
       </div>
     )
   }
@@ -146,22 +146,26 @@ ${transferRows ? `<h2>Transferencias para saldar</h2>
     <div className="space-y-6" ref={printRef}>
       {/* Stats cards */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-bg-card border border-border rounded-xl p-3">
+        <div className="glass rounded-2xl p-4 animate-[fadeInUp_0.35s_ease-out_both]">
           <p className="text-xs text-text-muted uppercase tracking-wider">Total</p>
-          <p className="text-xl font-black text-text mt-1">{formatCurrency(totalExpenses)}</p>
+          <p className="text-xl font-black text-text mt-1 tabular-nums">{formatCurrency(totalExpenses)}</p>
         </div>
-        <div className="bg-bg-card border border-border rounded-xl p-3">
+        <div className="glass rounded-2xl p-4 animate-[fadeInUp_0.35s_ease-out_0.06s_both]">
           <p className="text-xs text-text-muted uppercase tracking-wider">Por persona</p>
-          <p className="text-xl font-black text-text mt-1">{formatCurrency(perPerson)}</p>
-          <p className="text-xs text-text-muted">{memberCount} personas</p>
+          <p className="text-xl font-black text-text mt-1 tabular-nums">{formatCurrency(perPerson)}</p>
+          <p className="text-xs text-text-muted tabular-nums">{memberCount} personas</p>
         </div>
       </div>
 
       {/* Category breakdown */}
       <div className="space-y-3">
         <h3 className="text-sm font-semibold text-text-secondary uppercase tracking-wider">Por categoria</h3>
-        {categoryBreakdown.map((cat) => (
-          <div key={cat.category} className="bg-bg-card border border-border rounded-xl p-3">
+        {categoryBreakdown.map((cat, index) => (
+          <div
+            key={cat.category}
+            className="glass rounded-2xl p-3 animate-[fadeInUp_0.35s_ease-out_both]"
+            style={{ animationDelay: `${(index + 2) * 0.06}s` }}
+          >
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <span className="text-lg">{CATEGORY_EMOJIS[cat.category]}</span>
@@ -169,16 +173,17 @@ ${transferRows ? `<h2>Transferencias para saldar</h2>
                 <span className="text-xs text-text-muted">({cat.count})</span>
               </div>
               <div className="text-right">
-                <span className="font-bold text-sm">{formatCurrency(cat.total)}</span>
-                <span className="text-xs text-text-muted ml-1">{cat.percentage}%</span>
+                <span className="font-bold text-sm tabular-nums">{formatCurrency(cat.total)}</span>
+                <span className="text-xs text-text-muted ml-1 tabular-nums">{cat.percentage}%</span>
               </div>
             </div>
-            <div className="h-2 bg-bg-input rounded-full overflow-hidden">
+            <div className="h-2 bg-white/[0.04] rounded-full overflow-hidden">
               <div
-                className="h-full rounded-full transition-all"
+                className="h-full rounded-full transition-all duration-700 ease-out"
                 style={{
                   width: `${cat.percentage}%`,
-                  backgroundColor: CATEGORY_COLORS[cat.category],
+                  background: `linear-gradient(90deg, ${CATEGORY_COLORS[cat.category]}, ${CATEGORY_COLORS[cat.category]}dd)`,
+                  boxShadow: `0 0 8px ${CATEGORY_COLORS[cat.category]}66`,
                 }}
               />
             </div>
@@ -189,7 +194,7 @@ ${transferRows ? `<h2>Transferencias para saldar</h2>
       {/* Export PDF button */}
       <button
         onClick={handleExportPDF}
-        className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-bg-card border border-border rounded-xl text-text-secondary hover:text-text hover:border-border-light transition-colors"
+        className="w-full flex items-center justify-center gap-2 py-3 px-4 glass glass-hover rounded-2xl text-text-secondary hover:text-text btn-press"
       >
         <FileDown size={18} />
         Exportar resumen (PDF)

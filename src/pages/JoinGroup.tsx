@@ -39,10 +39,8 @@ export default function JoinGroup() {
 
     setGroup(groupData)
 
-    // Check if already a member
     const savedMemberId = localStorage.getItem(getMemberKey(groupData.id))
     if (savedMemberId) {
-      // Verify the member still exists
       const { data: memberData } = await supabase
         .from('members')
         .select('*')
@@ -57,7 +55,6 @@ export default function JoinGroup() {
       }
     }
 
-    // Load existing members
     const { data: membersData } = await supabase
       .from('members')
       .select('*')
@@ -103,7 +100,10 @@ export default function JoinGroup() {
   if (loading) {
     return (
       <div className="min-h-dvh flex items-center justify-center">
-        <Loader2 size={32} className="animate-spin text-primary" />
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 skeleton rounded-full" />
+          <div className="w-32 h-4 skeleton" />
+        </div>
       </div>
     )
   }
@@ -138,7 +138,7 @@ export default function JoinGroup() {
     <div className="min-h-dvh flex flex-col items-center justify-center px-4 py-8">
       <div className="w-full max-w-sm space-y-6">
         {/* Group info */}
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-2 animate-[fadeInUp_0.5s_ease-out_both]">
           <h1 className="text-3xl font-black italic bg-gradient-to-r from-primary-light to-secondary bg-clip-text text-transparent">
             {group.name}
           </h1>
@@ -151,7 +151,7 @@ export default function JoinGroup() {
 
         {/* Members list */}
         {members.length > 0 && (
-          <div className="bg-bg-card border border-border rounded-2xl p-4 space-y-3">
+          <div className="glass rounded-2xl p-4 space-y-3 animate-[fadeInUp_0.5s_ease-out_0.1s_both]">
             <div className="flex items-center gap-2 text-text-secondary text-sm">
               <Users size={16} />
               <span>{members.length} {members.length === 1 ? 'persona' : 'personas'} en el grupo</span>
@@ -160,7 +160,7 @@ export default function JoinGroup() {
               {members.map((m) => (
                 <span
                   key={m.id}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-bg-input border border-border"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium glass"
                 >
                   <span
                     className="w-2.5 h-2.5 rounded-full"
@@ -174,8 +174,8 @@ export default function JoinGroup() {
         )}
 
         {/* Join form */}
-        <form onSubmit={handleJoin} className="space-y-3">
-          <div className="bg-bg-card border border-border rounded-2xl p-4 space-y-3">
+        <form onSubmit={handleJoin} className="space-y-3 animate-[fadeInUp_0.5s_ease-out_0.2s_both]">
+          <div className="glass rounded-2xl p-4 space-y-3">
             <label className="text-sm font-medium text-text-secondary">Tu nombre</label>
             <input
               type="text"
@@ -184,14 +184,14 @@ export default function JoinGroup() {
               placeholder="¿Cómo te llaman?"
               maxLength={30}
               autoFocus
-              className="w-full py-3 px-4 bg-bg-input border border-border rounded-xl text-text text-lg placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full py-3 px-4 glass-input rounded-2xl text-text text-lg placeholder:text-text-muted focus:outline-none"
             />
           </div>
           {error && <p className="text-danger text-sm text-center">{error}</p>}
           <button
             type="submit"
             disabled={!name.trim() || joining}
-            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-secondary hover:from-primary-hover disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-3.5 px-4 rounded-xl transition-all shadow-lg shadow-primary/20"
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-secondary hover:from-primary-hover disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-3.5 px-4 rounded-2xl btn-press glow-primary"
           >
             {joining ? <Loader2 size={20} className="animate-spin" /> : <UserPlus size={20} />}
             {joining ? 'Entrando...' : 'Entrar al grupo'}

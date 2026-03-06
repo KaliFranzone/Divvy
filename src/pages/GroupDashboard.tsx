@@ -177,7 +177,7 @@ export default function GroupDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-dvh flex flex-col bg-bg pb-28">
+      <div className="min-h-dvh flex flex-col pb-28">
         <header className="px-4 pt-6 pb-4">
           <div className="max-w-lg mx-auto">
             <div className="w-48 h-7 skeleton mb-2" />
@@ -204,22 +204,33 @@ export default function GroupDashboard() {
           ))}
         </div>
         {/* Bottom nav skeleton */}
-        <div className="bottom-nav">
-          <div className="max-w-lg mx-auto flex justify-around px-4 py-2">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="flex flex-col items-center gap-1">
+        <nav className="bottom-nav">
+          <div className="bottom-nav-bar">
+            <div className="max-w-lg mx-auto flex justify-around items-end px-4 py-2">
+              <div className="flex flex-col items-center gap-1 py-2">
                 <div className="w-5 h-5 skeleton rounded" />
                 <div className="w-10 h-2 skeleton" />
               </div>
-            ))}
+              <div className="nav-fab-wrapper">
+                <div className="nav-fab opacity-50"><Plus size={28} /></div>
+              </div>
+              <div className="flex flex-col items-center gap-1 py-2">
+                <div className="w-5 h-5 skeleton rounded" />
+                <div className="w-10 h-2 skeleton" />
+              </div>
+              <div className="flex flex-col items-center gap-1 py-2">
+                <div className="w-5 h-5 skeleton rounded" />
+                <div className="w-10 h-2 skeleton" />
+              </div>
+            </div>
           </div>
-        </div>
+        </nav>
       </div>
     )
   }
 
   return (
-    <div className="min-h-dvh flex flex-col bg-bg pb-28">
+    <div className="min-h-dvh flex flex-col pb-28">
       {/* Header */}
       <header className="px-4 pt-6 pb-4 animate-[fadeInUp_0.4s_ease-out_both]">
         <div className="max-w-lg mx-auto flex items-start justify-between">
@@ -295,33 +306,48 @@ export default function GroupDashboard() {
         )}
       </main>
 
-      {/* FAB - positioned above bottom nav */}
-      <div className="fab-container">
-        <button
-          onClick={() => { setEditingExpense(null); setShowAddExpense(true) }}
-          className="w-14 h-14 flex items-center justify-center rounded-full bg-gradient-to-r from-primary to-secondary text-white hover:scale-105 active:scale-95 transition-transform animate-[pulse-glow_3s_ease-in-out_infinite]"
-        >
-          <Plus size={28} />
-        </button>
-      </div>
-
-      {/* Bottom Navigation Bar */}
+      {/* Bottom Navigation Bar with integrated FAB */}
       <nav className="bottom-nav">
-        <div className="max-w-lg mx-auto flex justify-around items-center px-2">
-          {tabs.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`bottom-nav-item flex-1 ${
-                activeTab === tab.key
-                  ? 'active text-primary-light'
-                  : 'text-text-muted'
-              }`}
-            >
-              {tab.icon}
-              <span>{tab.label}</span>
-            </button>
-          ))}
+        <div className="bottom-nav-bar">
+          <div className="max-w-lg mx-auto flex items-end px-2">
+            {/* Left tabs */}
+            {tabs.slice(0, 1).map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`bottom-nav-item flex-1 ${
+                  activeTab === tab.key ? 'active text-primary-light' : 'text-text-muted'
+                }`}
+              >
+                {tab.icon}
+                <span>{tab.label}</span>
+              </button>
+            ))}
+
+            {/* Center FAB */}
+            <div className="nav-fab-wrapper">
+              <button
+                onClick={() => { setEditingExpense(null); setShowAddExpense(true) }}
+                className="nav-fab"
+              >
+                <Plus size={28} />
+              </button>
+            </div>
+
+            {/* Right tabs */}
+            {tabs.slice(1).map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`bottom-nav-item flex-1 ${
+                  activeTab === tab.key ? 'active text-primary-light' : 'text-text-muted'
+                }`}
+              >
+                {tab.icon}
+                <span>{tab.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </nav>
 

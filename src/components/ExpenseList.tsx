@@ -51,17 +51,17 @@ export default function ExpenseList({ expenses, members, splitCounts, currentMem
 
   if (expenses.length === 0) {
     return (
-      <div className="text-center py-16">
-        <Receipt size={48} className="mx-auto mb-3 text-text-muted opacity-40" />
-        <p className="font-medium text-text-secondary">No hay gastos todavia</p>
-        <p className="text-sm text-text-muted">Toca el boton + para cargar el primero</p>
+      <div className="text-center py-20">
+        <Receipt size={52} className="mx-auto mb-4 text-text-muted opacity-30" />
+        <p className="font-medium text-text-secondary text-lg">No hay gastos todavia</p>
+        <p className="text-sm text-text-muted mt-1">Toca el boton + para cargar el primero</p>
       </div>
     )
   }
 
   return (
     <div className="space-y-2">
-      {expenses.map((expense) => {
+      {expenses.map((expense, index) => {
         const payer = memberMap.get(expense.paid_by)
         const splitCount = splitCounts.get(expense.id) || 0
         const splitLabel = splitCount === members.length ? 'Todos' : `${splitCount} personas`
@@ -71,15 +71,19 @@ export default function ExpenseList({ expenses, members, splitCounts, currentMem
         const isOwner = expense.paid_by === currentMemberId
 
         return (
-          <div key={expense.id}>
+          <div
+            key={expense.id}
+            style={{ animationDelay: `${Math.min(index * 0.04, 0.4)}s` }}
+            className="animate-[fadeInUp_0.35s_ease-out_both]"
+          >
             <div
               onClick={() => setExpandedId(isExpanded ? null : expense.id)}
-              className={`flex items-center gap-3 bg-bg-card border rounded-xl p-3 transition-colors cursor-pointer ${
-                isExpanded ? 'border-primary/30 bg-bg-card-hover' : 'border-border hover:bg-bg-card-hover'
+              className={`flex items-center gap-3 glass glass-hover rounded-2xl p-3 cursor-pointer ${
+                isExpanded ? 'border-primary/20 bg-white/[0.06]' : ''
               }`}
             >
               {/* Category emoji */}
-              <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-bg-input text-lg shrink-0">
+              <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/[0.04] text-lg shrink-0">
                 {CATEGORY_EMOJIS[expense.category]}
               </div>
 
@@ -92,15 +96,15 @@ export default function ExpenseList({ expenses, members, splitCounts, currentMem
               </div>
 
               {/* Amount */}
-              <p className="font-bold text-text shrink-0">{formatCurrency(expense.amount)}</p>
+              <p className="font-bold text-text shrink-0 tabular-nums">{formatCurrency(expense.amount)}</p>
             </div>
 
             {/* Action buttons */}
             {isExpanded && isOwner && (
-              <div className="flex gap-2 mt-1 ml-13 pl-[52px]">
+              <div className="flex gap-2 mt-1.5 pl-[52px] animate-[fadeInUp_0.2s_ease-out_both]">
                 <button
                   onClick={() => { onEdit(expense); setExpandedId(null) }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary-light bg-primary/10 border border-primary/20 rounded-lg hover:bg-primary/20 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary-light bg-primary/10 border border-primary/15 rounded-lg hover:bg-primary/20 transition-colors btn-press"
                 >
                   <Pencil size={12} />
                   Editar
@@ -108,10 +112,10 @@ export default function ExpenseList({ expenses, members, splitCounts, currentMem
                 <button
                   onClick={() => handleDelete(expense.id)}
                   disabled={deletingId === expense.id}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors btn-press ${
                     confirmDeleteId === expense.id
-                      ? 'bg-danger text-white'
-                      : 'text-danger bg-danger/10 border border-danger/20 hover:bg-danger/20'
+                      ? 'bg-danger text-white glow-danger'
+                      : 'text-danger bg-danger/10 border border-danger/15 hover:bg-danger/20'
                   }`}
                 >
                   {deletingId === expense.id ? (
@@ -124,7 +128,7 @@ export default function ExpenseList({ expenses, members, splitCounts, currentMem
               </div>
             )}
             {isExpanded && !isOwner && (
-              <p className="text-xs text-text-muted mt-1 pl-[52px]">
+              <p className="text-xs text-text-muted mt-1.5 pl-[52px] animate-[fadeInUp_0.2s_ease-out_both]">
                 Solo {payer?.name} puede editar este gasto
               </p>
             )}
