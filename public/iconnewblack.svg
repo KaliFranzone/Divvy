@@ -1,0 +1,32 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="divvyGradient" x1="120" y1="96" x2="392" y2="384" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#7C3AED"></stop>
+      <stop offset="100%" stop-color="#6366F1"></stop>
+    </linearGradient>
+
+    <mask id="symbolCut">
+      <rect width="512" height="512" fill="black"></rect>
+      <!-- Base visible area -->
+      <path d="M152 120C152 97.9086 169.909 80 192 80H258C346.366 80 416 149.634 416 238C416 326.366 346.366 396 258 396H192C169.909 396 152 378.091 152 356V120Z" fill="white"></path>
+
+      <!-- Inner counter of the D -->
+      <path d="M224 152H254C304.81 152 344 191.19 344 242C344 292.81 304.81 332 254 332H224V152Z" fill="black"></path>
+
+      <!-- Split cue -->
+      <circle cx="262" cy="194" r="18" fill="black"></circle>
+      <circle cx="292" cy="278" r="18" fill="black"></circle>
+
+      <rect x="247" y="265.255" width="22" height="102" rx="11" transform="rotate(-35 247 265.255)" fill="black"></rect>
+    </mask>
+  </defs>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="512" height="512" rx="120" fill="#0A0E1A"></rect>
+
+  <!-- Main symbol -->
+  <rect x="96" y="80" width="320" height="316" rx="64" fill="url(#divvyGradient)" mask="url(#symbolCut)"></rect>
+
+  <!-- Optional subtle glow accent -->
+  <path d="M168 116C168 102.745 178.745 92 192 92H258C339.739 92 404 156.261 404 238C404 319.739 339.739 384 258 384H192C178.745 384 168 373.255 168 360V116Z" stroke="rgba(255,255,255,0.06)" stroke-width="2"></path>
+</svg>

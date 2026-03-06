@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Palmtree, Plus, LogIn, MapPin, Calendar, Loader2 } from 'lucide-react'
+import { Plus, LogIn, MapPin, Calendar, Loader2 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { generateGroupCode } from '../lib/utils'
 
@@ -53,14 +53,12 @@ export default function Home() {
       <div className="w-full max-w-sm space-y-8">
         {/* Logo */}
         <div className="text-center space-y-3">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-secondary shadow-lg shadow-primary/25">
-            <Palmtree size={40} className="text-white" />
-          </div>
+          <img src="/icon-192.svg" alt="Divvy" className="w-20 h-20 rounded-2xl shadow-lg shadow-primary/25 mx-auto" />
           <h1 className="text-4xl font-black italic bg-gradient-to-r from-primary-light to-secondary bg-clip-text text-transparent">
-            SplitViaje
+            Divvy
           </h1>
           <p className="text-text-secondary">
-            Dividí los gastos del viaje sin complicaciones
+            Dividi los gastos del viaje sin drama
           </p>
         </div>
 

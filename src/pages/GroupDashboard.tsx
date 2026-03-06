@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { Receipt, Scale, PieChart, Plus, Users, Loader2 } from 'lucide-react'
-import { useState, useEffect, useCallback } from 'react'
+import { Receipt, Scale, PieChart, Plus, Users, Loader2, Share2 } from 'lucide-react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { formatCurrency } from '../lib/utils'
 import { calculateDashboard } from '../lib/calculations'
@@ -10,12 +10,14 @@ import AddExpenseModal from '../components/AddExpenseModal'
 import ExpenseList from '../components/ExpenseList'
 import BalancesTab from '../components/BalancesTab'
 import SummaryTab from '../components/SummaryTab'
+import { useToast } from '../components/Toast'
 
 type Tab = 'expenses' | 'balances' | 'summary'
 
 export default function GroupDashboard() {
   const { code } = useParams<{ code: string }>()
   const navigate = useNavigate()
+  const { showToast } = useToast()
   const [group, setGroup] = useState<Group | null>(null)
   const [members, setMembers] = useState<Member[]>([])
   const [expenses, setExpenses] = useState<Expense[]>([])
@@ -24,6 +26,8 @@ export default function GroupDashboard() {
   const [activeTab, setActiveTab] = useState<Tab>('expenses')
   const [loading, setLoading] = useState(true)
   const [showAddExpense, setShowAddExpense] = useState(false)
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
+  const prevExpenseCountRef = useRef(0)
 
   const loadData = useCallback(async () => {
     const { data: groupData } = await supabase
@@ -45,7 +49,6 @@ export default function GroupDashboard() {
       return
     }
 
-    // Load all data in parallel
     const [membersRes, expensesRes, splitsRes] = await Promise.all([
       supabase
         .from('members')
@@ -64,8 +67,9 @@ export default function GroupDashboard() {
     ])
 
     const membersData = membersRes.data || []
+    const expensesData = expensesRes.data || []
     setMembers(membersData)
-    setExpenses(expensesRes.data || [])
+    setExpenses(expensesData)
     setSplits((splitsRes.data || []).map((s: Record<string, unknown>) => ({
       id: s.id as string,
       expense_id: s.expense_id as string,
@@ -82,7 +86,17 @@ export default function GroupDashboard() {
 
     setCurrentMember(me)
     setLoading(false)
-  }, [code, navigate])
+
+    // Show toast for new expenses from other members
+    if (prevExpenseCountRef.current > 0 && expensesData.length > prevExpenseCountRef.current) {
+      const newest = expensesData[0]
+      if (newest && newest.paid_by !== savedMemberId) {
+        const payer = membersData.find((m) => m.id === newest.paid_by)
+        showToast(`${payer?.name || 'Alguien'} agrego: ${newest.description}`, 'info')
+      }
+    }
+    prevExpenseCountRef.current = expensesData.length
+  }, [code, navigate, showToast])
 
   useEffect(() => {
     loadData()
@@ -123,6 +137,30 @@ export default function GroupDashboard() {
     splitCounts.set(s.expense_id, (splitCounts.get(s.expense_id) || 0) + 1)
   }
 
+  // Get split member IDs for editing expense
+  const getExpenseSplitMemberIds = (expenseId: string): string[] => {
+    return splits.filter((s) => s.expense_id === expenseId).map((s) => s.member_id)
+  }
+
+  const handleEdit = (expense: Expense) => {
+    setEditingExpense(expense)
+    setShowAddExpense(true)
+  }
+
+  const handleShare = async () => {
+    const url = `${window.location.origin}/group/${code}`
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: group?.name || 'Divvy', text: `Unite a ${group?.name} en Divvy`, url })
+      } catch {
+        // User cancelled
+      }
+    } else {
+      await navigator.clipboard.writeText(url)
+      showToast('Link copiado al portapapeles', 'success')
+    }
+  }
+
   const formatDates = () => {
     if (!group?.start_date) return null
     const start = new Date(group.start_date + 'T12:00:00')
@@ -131,7 +169,7 @@ export default function GroupDashboard() {
     if (!group.end_date) return s
     const end = new Date(group.end_date + 'T12:00:00')
     const e = end.toLocaleDateString('es-AR', opts)
-    return `${s} – ${e}`
+    return `${s} \u2013 ${e}`
   }
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
@@ -155,16 +193,25 @@ export default function GroupDashboard() {
         <div className="max-w-lg mx-auto flex items-start justify-between">
           <div>
             <h1 className="text-2xl font-black italic bg-gradient-to-r from-primary-light to-secondary bg-clip-text text-transparent">
-              {group?.name || 'SplitViaje'}
+              {group?.name || 'Divvy'}
             </h1>
             <p className="text-text-secondary text-sm">
-              {[group?.destination, formatDates()].filter(Boolean).join(' · ')}
+              {[group?.destination, formatDates()].filter(Boolean).join(' \u00B7 ')}
             </p>
           </div>
-          <button className="flex items-center gap-1.5 px-3 py-1.5 bg-bg-card border border-border rounded-full text-sm text-text-secondary hover:text-text transition-colors">
-            <Users size={14} />
-            {members.length} amigos
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleShare}
+              className="flex items-center justify-center w-9 h-9 bg-bg-card border border-border rounded-full text-text-secondary hover:text-text transition-colors"
+              title="Compartir grupo"
+            >
+              <Share2 size={14} />
+            </button>
+            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-bg-card border border-border rounded-full text-sm text-text-secondary hover:text-text transition-colors">
+              <Users size={14} />
+              {members.length}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -174,7 +221,7 @@ export default function GroupDashboard() {
           <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Gasto total del grupo</p>
           <p className="text-3xl font-black text-text">{formatCurrency(dashboard.totalExpenses)}</p>
           <p className="text-text-muted text-sm mt-1">
-            ≈ {formatCurrency(dashboard.perPerson)} por persona
+            &asymp; {formatCurrency(dashboard.perPerson)} por persona
           </p>
         </div>
       </div>
@@ -201,14 +248,22 @@ export default function GroupDashboard() {
 
       {/* Content */}
       <main className="flex-1 max-w-lg mx-auto w-full px-4">
-        {activeTab === 'expenses' && (
-          <ExpenseList expenses={expenses} members={members} splitCounts={splitCounts} />
+        {activeTab === 'expenses' && currentMember && (
+          <ExpenseList
+            expenses={expenses}
+            members={members}
+            splitCounts={splitCounts}
+            currentMemberId={currentMember.id}
+            onEdit={handleEdit}
+            onDeleted={() => loadData()}
+          />
         )}
-        {activeTab === 'balances' && (
+        {activeTab === 'balances' && group && (
           <BalancesTab
             memberBalances={dashboard.memberBalances}
             transfers={dashboard.transfers}
             members={members}
+            groupId={group.id}
           />
         )}
         {activeTab === 'summary' && (
@@ -217,6 +272,10 @@ export default function GroupDashboard() {
             perPerson={dashboard.perPerson}
             categoryBreakdown={dashboard.categoryBreakdown}
             memberCount={members.length}
+            groupName={group?.name}
+            members={members}
+            memberBalances={dashboard.memberBalances}
+            transfers={dashboard.transfers}
           />
         )}
       </main>
@@ -224,21 +283,23 @@ export default function GroupDashboard() {
       {/* FAB */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2">
         <button
-          onClick={() => setShowAddExpense(true)}
+          onClick={() => { setEditingExpense(null); setShowAddExpense(true) }}
           className="w-14 h-14 flex items-center justify-center rounded-full bg-gradient-to-r from-primary to-secondary shadow-lg shadow-primary/30 text-white hover:scale-105 transition-transform"
         >
           <Plus size={28} />
         </button>
       </div>
 
-      {/* Add expense modal */}
+      {/* Add/Edit expense modal */}
       {showAddExpense && group && currentMember && (
         <AddExpenseModal
           groupId={group.id}
           members={members}
           currentMemberId={currentMember.id}
-          onClose={() => setShowAddExpense(false)}
+          onClose={() => { setShowAddExpense(false); setEditingExpense(null) }}
           onAdded={() => loadData()}
+          editingExpense={editingExpense}
+          editingSplitMemberIds={editingExpense ? getExpenseSplitMemberIds(editingExpense.id) : undefined}
         />
       )}
     </div>

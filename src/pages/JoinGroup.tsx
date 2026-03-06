@@ -6,7 +6,7 @@ import { AVATAR_COLORS } from '../lib/utils'
 import type { Group, Member } from '../types'
 
 function getMemberKey(groupId: string) {
-  return `splitviaje_member_${groupId}`
+  return `divvy_member_${groupId}`
 }
 
 export default function JoinGroup() {

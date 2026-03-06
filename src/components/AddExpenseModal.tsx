@@ -2,16 +2,17 @@ import { useState, useEffect, useRef } from 'react'
 import { Loader2 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { pesosToCents } from '../lib/utils'
-import type { Member, ExpenseCategory } from '../types'
+import type { Member, ExpenseCategory, Expense } from '../types'
 import { CATEGORY_LABELS } from '../types'
+import { useToast } from './Toast'
 
 const CATEGORY_EMOJIS: Record<ExpenseCategory, string> = {
-  comida: '🍔',
-  super: '🛒',
-  nafta: '⛽',
-  alquiler: '🏠',
-  salida: '🍻',
-  otro: '📦',
+  comida: '\u{1F354}',
+  super: '\u{1F6D2}',
+  nafta: '\u26FD',
+  alquiler: '\u{1F3E0}',
+  salida: '\u{1F37B}',
+  otro: '\u{1F4E6}',
 }
 
 interface Props {
@@ -20,18 +21,25 @@ interface Props {
   currentMemberId: string
   onClose: () => void
   onAdded: () => void
+  editingExpense?: Expense | null
+  editingSplitMemberIds?: string[]
 }
 
-export default function AddExpenseModal({ groupId, members, currentMemberId, onClose, onAdded }: Props) {
+export default function AddExpenseModal({ groupId, members, currentMemberId, onClose, onAdded, editingExpense, editingSplitMemberIds }: Props) {
+  const { showToast } = useToast()
   const [phase, setPhase] = useState<'entering' | 'visible' | 'leaving'>('entering')
-  const [description, setDescription] = useState('')
-  const [amount, setAmount] = useState('')
-  const [category, setCategory] = useState<ExpenseCategory>('comida')
-  const [paidBy, setPaidBy] = useState(currentMemberId)
-  const [splitBetween, setSplitBetween] = useState<string[]>(members.map((m) => m.id))
+  const [description, setDescription] = useState(editingExpense?.description || '')
+  const [amount, setAmount] = useState(editingExpense ? String(editingExpense.amount / 100) : '')
+  const [category, setCategory] = useState<ExpenseCategory>(editingExpense?.category || 'comida')
+  const [paidBy, setPaidBy] = useState(editingExpense?.paid_by || currentMemberId)
+  const [splitBetween, setSplitBetween] = useState<string[]>(
+    editingSplitMemberIds || members.map((m) => m.id)
+  )
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
   const sheetRef = useRef<HTMLDivElement>(null)
+  const submitRef = useRef(false)
 
   useEffect(() => {
     requestAnimationFrame(() => {
@@ -61,51 +69,110 @@ export default function AddExpenseModal({ groupId, members, currentMemberId, onC
     return members.find((m) => m.id === id)?.name || '?'
   }
 
+  const validate = (): boolean => {
+    const errors: Record<string, string> = {}
+    if (!description.trim()) errors.description = 'Ingresa una descripcion'
+    if (description.trim().length > 80) errors.description = 'Maximo 80 caracteres'
+
+    const amountNum = parseFloat(amount)
+    if (!amount || isNaN(amountNum)) errors.amount = 'Ingresa un monto'
+    else if (amountNum <= 0) errors.amount = 'El monto debe ser mayor a 0'
+    else if (amountNum > 99999999) errors.amount = 'Monto demasiado alto'
+
+    if (splitBetween.length === 0) errors.split = 'Selecciona al menos una persona'
+
+    setValidationErrors(errors)
+    return Object.keys(errors).length === 0
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const amountNum = parseFloat(amount)
-    if (!description.trim() || !amountNum || amountNum <= 0 || splitBetween.length === 0 || saving) return
+    if (submitRef.current || saving) return
+    if (!validate()) return
 
+    submitRef.current = true
     setSaving(true)
     setError('')
 
-    const amountCents = pesosToCents(amountNum)
+    const amountCents = pesosToCents(parseFloat(amount))
 
-    const { data: expense, error: expError } = await supabase
-      .from('expenses')
-      .insert({
-        group_id: groupId,
-        description: description.trim(),
-        amount: amountCents,
-        paid_by: paidBy,
-        category,
-      })
-      .select()
-      .single()
+    if (editingExpense) {
+      // Update existing expense
+      const { error: updateError } = await supabase
+        .from('expenses')
+        .update({
+          description: description.trim(),
+          amount: amountCents,
+          paid_by: paidBy,
+          category,
+        })
+        .eq('id', editingExpense.id)
 
-    if (expError || !expense) {
-      setError('Error al guardar el gasto.')
-      setSaving(false)
-      return
-    }
+      if (updateError) {
+        setError('Error al actualizar el gasto.')
+        setSaving(false)
+        submitRef.current = false
+        return
+      }
 
-    const splitAmount = Math.floor(amountCents / splitBetween.length)
-    const remainder = amountCents - splitAmount * splitBetween.length
+      // Delete old splits and insert new ones
+      await supabase.from('expense_splits').delete().eq('expense_id', editingExpense.id)
 
-    const splitsToInsert = splitBetween.map((memberId, idx) => ({
-      expense_id: expense.id,
-      member_id: memberId,
-      amount: splitAmount + (idx < remainder ? 1 : 0),
-    }))
+      const splitAmount = Math.floor(amountCents / splitBetween.length)
+      const remainder = amountCents - splitAmount * splitBetween.length
+      const splitsToInsert = splitBetween.map((memberId, idx) => ({
+        expense_id: editingExpense.id,
+        member_id: memberId,
+        amount: splitAmount + (idx < remainder ? 1 : 0),
+      }))
 
-    const { error: splitError } = await supabase
-      .from('expense_splits')
-      .insert(splitsToInsert)
+      const { error: splitError } = await supabase.from('expense_splits').insert(splitsToInsert)
+      if (splitError) {
+        setError('Gasto actualizado pero hubo error en la division.')
+        setSaving(false)
+        submitRef.current = false
+        return
+      }
 
-    if (splitError) {
-      setError('Gasto guardado pero hubo error en la división.')
-      setSaving(false)
-      return
+      showToast('Gasto actualizado', 'success')
+    } else {
+      // Create new expense
+      const { data: expense, error: expError } = await supabase
+        .from('expenses')
+        .insert({
+          group_id: groupId,
+          description: description.trim(),
+          amount: amountCents,
+          paid_by: paidBy,
+          category,
+        })
+        .select()
+        .single()
+
+      if (expError || !expense) {
+        setError('Error al guardar el gasto.')
+        setSaving(false)
+        submitRef.current = false
+        return
+      }
+
+      const splitAmount = Math.floor(amountCents / splitBetween.length)
+      const remainder = amountCents - splitAmount * splitBetween.length
+      const splitsToInsert = splitBetween.map((memberId, idx) => ({
+        expense_id: expense.id,
+        member_id: memberId,
+        amount: splitAmount + (idx < remainder ? 1 : 0),
+      }))
+
+      const { error: splitError } = await supabase.from('expense_splits').insert(splitsToInsert)
+      if (splitError) {
+        setError('Gasto guardado pero hubo error en la division.')
+        setSaving(false)
+        submitRef.current = false
+        return
+      }
+
+      showToast('Gasto agregado', 'success')
     }
 
     onAdded()
@@ -134,42 +201,46 @@ export default function AddExpenseModal({ groupId, members, currentMemberId, onC
         </div>
 
         <div className="px-5 pb-5">
-          <h2 className="text-xl font-bold mb-5">Nuevo gasto</h2>
+          <h2 className="text-xl font-bold mb-5">{editingExpense ? 'Editar gasto' : 'Nuevo gasto'}</h2>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Description */}
             <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">Descripción</label>
+              <label className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">Descripcion</label>
               <input
                 type="text"
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={(e) => { setDescription(e.target.value); setValidationErrors((v) => ({ ...v, description: '' })) }}
                 placeholder="Ej: Cena en la playa"
                 maxLength={80}
                 autoFocus
-                className="w-full py-3 px-4 bg-bg-input border border-border-light rounded-xl text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
+                className={`w-full py-3 px-4 bg-bg-input border rounded-xl text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 ${validationErrors.description ? 'border-danger' : 'border-border-light'}`}
               />
+              {validationErrors.description && <p className="text-danger text-xs">{validationErrors.description}</p>}
             </div>
 
             {/* Amount */}
             <div className="space-y-1.5">
               <label className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">Monto</label>
               <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted font-semibold">$</span>
                 <input
                   type="number"
                   value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
+                  onChange={(e) => { setAmount(e.target.value); setValidationErrors((v) => ({ ...v, amount: '' })) }}
                   placeholder="25000"
                   min="1"
+                  max="99999999"
                   step="1"
-                  className="w-full py-3 px-4 bg-bg-input border border-border-light rounded-xl text-text text-lg font-semibold placeholder:text-text-muted placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className={`w-full py-3 pl-8 pr-4 bg-bg-input border rounded-xl text-text text-lg font-semibold placeholder:text-text-muted placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${validationErrors.amount ? 'border-danger' : 'border-border-light'}`}
                 />
               </div>
+              {validationErrors.amount && <p className="text-danger text-xs">{validationErrors.amount}</p>}
             </div>
 
             {/* Paid by */}
             <div className="space-y-2">
-              <label className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">Quién pagó</label>
+              <label className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">Quien pago</label>
               <div className="flex flex-wrap gap-2">
                 {members.map((m) => (
                   <button
@@ -190,7 +261,7 @@ export default function AddExpenseModal({ groupId, members, currentMemberId, onC
 
             {/* Category */}
             <div className="space-y-2">
-              <label className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">Categoría</label>
+              <label className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">Categoria</label>
               <div className="flex flex-wrap gap-2">
                 {(Object.keys(CATEGORY_LABELS) as ExpenseCategory[]).map((cat) => (
                   <button
@@ -243,6 +314,7 @@ export default function AddExpenseModal({ groupId, members, currentMemberId, onC
                   )
                 })}
               </div>
+              {validationErrors.split && <p className="text-danger text-xs">{validationErrors.split}</p>}
               {splitBetween.length > 0 && amount && parseFloat(amount) > 0 && (
                 <p className="text-xs text-text-muted mt-1">
                   ${Math.round(parseFloat(amount) / splitBetween.length).toLocaleString('es-AR')} por persona
@@ -255,11 +327,11 @@ export default function AddExpenseModal({ groupId, members, currentMemberId, onC
             {/* Submit */}
             <button
               type="submit"
-              disabled={!description.trim() || !amount || parseFloat(amount) <= 0 || splitBetween.length === 0 || saving}
+              disabled={saving}
               className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-secondary hover:from-primary-hover disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-4 px-4 rounded-2xl transition-all text-base"
             >
               {saving ? <Loader2 size={18} className="animate-spin" /> : null}
-              {saving ? 'Guardando...' : 'Agregar gasto'}
+              {saving ? 'Guardando...' : editingExpense ? 'Guardar cambios' : 'Agregar gasto'}
             </button>
           </form>
         </div>
