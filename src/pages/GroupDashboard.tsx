@@ -206,21 +206,25 @@ export default function GroupDashboard() {
         {/* Bottom nav skeleton */}
         <nav className="bottom-nav">
           <div className="bottom-nav-bar">
-            <div className="max-w-lg mx-auto flex justify-around items-end px-4 py-2">
-              <div className="flex flex-col items-center gap-1 py-2">
-                <div className="w-5 h-5 skeleton rounded" />
-                <div className="w-10 h-2 skeleton" />
+            <div className="nav-fab opacity-50"><Plus size={28} /></div>
+            <div className="max-w-lg mx-auto flex items-end px-2">
+              <div className="flex flex-1 min-w-0">
+                <div className="bottom-nav-item flex-1">
+                  <div className="w-5 h-5 skeleton rounded" />
+                  <div className="w-10 h-2 skeleton" />
+                </div>
+                <div className="flex-1" />
               </div>
-              <div className="nav-fab-wrapper">
-                <div className="nav-fab opacity-50"><Plus size={28} /></div>
-              </div>
-              <div className="flex flex-col items-center gap-1 py-2">
-                <div className="w-5 h-5 skeleton rounded" />
-                <div className="w-10 h-2 skeleton" />
-              </div>
-              <div className="flex flex-col items-center gap-1 py-2">
-                <div className="w-5 h-5 skeleton rounded" />
-                <div className="w-10 h-2 skeleton" />
+              <div className="w-[72px] shrink-0" />
+              <div className="flex flex-1 min-w-0">
+                <div className="bottom-nav-item flex-1">
+                  <div className="w-5 h-5 skeleton rounded" />
+                  <div className="w-10 h-2 skeleton" />
+                </div>
+                <div className="bottom-nav-item flex-1">
+                  <div className="w-5 h-5 skeleton rounded" />
+                  <div className="w-10 h-2 skeleton" />
+                </div>
               </div>
             </div>
           </div>
@@ -309,44 +313,47 @@ export default function GroupDashboard() {
       {/* Bottom Navigation Bar with integrated FAB */}
       <nav className="bottom-nav">
         <div className="bottom-nav-bar">
-          <div className="max-w-lg mx-auto flex items-end px-2">
-            {/* Left tabs */}
-            {tabs.slice(0, 1).map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`bottom-nav-item flex-1 ${
-                  activeTab === tab.key ? 'active text-primary-light' : 'text-text-muted'
-                }`}
-              >
-                {tab.icon}
-                <span>{tab.label}</span>
-              </button>
-            ))}
+          {/* FAB - absolutely centered in the bar */}
+          <button
+            onClick={() => { setEditingExpense(null); setShowAddExpense(true) }}
+            className="nav-fab"
+          >
+            <Plus size={28} />
+          </button>
 
-            {/* Center FAB */}
-            <div className="nav-fab-wrapper">
+          <div className="max-w-lg mx-auto flex items-end px-2">
+            {/* Left half */}
+            <div className="flex flex-1 min-w-0">
               <button
-                onClick={() => { setEditingExpense(null); setShowAddExpense(true) }}
-                className="nav-fab"
+                onClick={() => setActiveTab('expenses')}
+                className={`bottom-nav-item flex-1 ${activeTab === 'expenses' ? 'active text-primary-light' : 'text-text-muted'}`}
               >
-                <Plus size={28} />
+                <Receipt size={20} />
+                <span>Gastos</span>
               </button>
+              <div className="flex-1" />
             </div>
 
-            {/* Right tabs */}
-            {tabs.slice(1).map((tab) => (
+            {/* Center spacer for FAB */}
+            <div className="w-[72px] shrink-0" />
+
+            {/* Right half */}
+            <div className="flex flex-1 min-w-0">
               <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`bottom-nav-item flex-1 ${
-                  activeTab === tab.key ? 'active text-primary-light' : 'text-text-muted'
-                }`}
+                onClick={() => setActiveTab('balances')}
+                className={`bottom-nav-item flex-1 ${activeTab === 'balances' ? 'active text-primary-light' : 'text-text-muted'}`}
               >
-                {tab.icon}
-                <span>{tab.label}</span>
+                <Scale size={20} />
+                <span>Balances</span>
               </button>
-            ))}
+              <button
+                onClick={() => setActiveTab('summary')}
+                className={`bottom-nav-item flex-1 ${activeTab === 'summary' ? 'active text-primary-light' : 'text-text-muted'}`}
+              >
+                <PieChart size={20} />
+                <span>Resumen</span>
+              </button>
+            </div>
           </div>
         </div>
       </nav>
