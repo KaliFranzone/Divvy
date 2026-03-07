@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { Receipt, Scale, PieChart, Plus, Users, Share2, User, LogOut } from 'lucide-react'
+import { Receipt, Scale, PieChart, Plus, Users, Share2, User, LogOut, Copy } from 'lucide-react'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { formatCurrency } from '../lib/utils'
@@ -246,6 +246,16 @@ export default function GroupDashboard() {
             <p className="text-text-secondary text-sm">
               {[group?.destination, formatDates()].filter(Boolean).join(' \u00B7 ')}
             </p>
+            <button
+              onClick={async () => {
+                await navigator.clipboard.writeText(code!.toUpperCase())
+                showToast('Código copiado', 'success')
+              }}
+              className="mt-1 flex items-center gap-1.5 text-xs text-text-muted hover:text-text transition-colors"
+            >
+              <span className="font-mono tracking-widest bg-white/[0.06] px-2 py-0.5 rounded-lg">{code?.toUpperCase()}</span>
+              <Copy size={12} />
+            </button>
           </div>
           <div className="flex items-center gap-2">
             <button
