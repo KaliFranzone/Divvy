@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, LogIn, MapPin, Calendar, Loader2 } from 'lucide-react'
+import { Plus, LogIn, MapPin, Loader2 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { generateGroupCode } from '../lib/utils'
 
@@ -10,8 +10,6 @@ export default function Home() {
   const [showCreate, setShowCreate] = useState(false)
   const [groupName, setGroupName] = useState('')
   const [destination, setDestination] = useState('')
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -34,8 +32,8 @@ export default function Home() {
     const { error: dbError } = await supabase.from('groups').insert({
       name: groupName.trim(),
       destination: destination.trim(),
-      start_date: startDate || null,
-      end_date: endDate || null,
+      start_date: null,
+      end_date: null,
       invite_code: inviteCode,
     })
 
@@ -92,26 +90,6 @@ export default function Home() {
                 placeholder="Destino (ej: Costa, Bariloche...)"
                 maxLength={50}
                 className="w-full py-3 pl-10 pr-4 glass-input rounded-2xl text-text placeholder:text-text-muted focus:outline-none"
-              />
-            </div>
-            <div className="relative">
-              <Calendar size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                placeholder="Fecha inicio"
-                className="w-full py-3 pl-10 pr-4 glass-input rounded-2xl text-text text-sm focus:outline-none"
-              />
-            </div>
-            <div className="relative">
-              <Calendar size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                placeholder="Fecha fin"
-                className="w-full py-3 pl-10 pr-4 glass-input rounded-2xl text-text text-sm focus:outline-none"
               />
             </div>
             {error && <p className="text-danger text-sm">{error}</p>}
