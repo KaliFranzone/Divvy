@@ -95,22 +95,22 @@ export default function Home() {
               />
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <div className="relative">
+              <div className="relative min-w-0">
                 <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
                 <input
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full py-3 pl-9 pr-2 glass-input rounded-2xl text-text text-sm focus:outline-none"
+                  className="w-full min-w-0 py-3 pl-9 pr-2 glass-input rounded-2xl text-text text-sm focus:outline-none"
                 />
               </div>
-              <div className="relative">
+              <div className="relative min-w-0">
                 <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
                 <input
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full py-3 pl-9 pr-2 glass-input rounded-2xl text-text text-sm focus:outline-none"
+                  className="w-full min-w-0 py-3 pl-9 pr-2 glass-input rounded-2xl text-text text-sm focus:outline-none"
                 />
               </div>
             </div>

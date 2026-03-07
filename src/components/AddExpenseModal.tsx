@@ -211,7 +211,6 @@ export default function AddExpenseModal({ groupId, members, currentMemberId, onC
                 onChange={(e) => { setDescription(e.target.value); setValidationErrors((v) => ({ ...v, description: '' })) }}
                 placeholder="Ej: Cena en la playa"
                 maxLength={80}
-                autoFocus
                 className={`w-full py-3 px-4 glass-input rounded-2xl text-text placeholder:text-text-muted focus:outline-none ${validationErrors.description ? 'border-danger!' : ''}`}
               />
               {validationErrors.description && <p className="text-danger text-xs">{validationErrors.description}</p>}
@@ -322,15 +321,24 @@ export default function AddExpenseModal({ groupId, members, currentMemberId, onC
 
             {error && <p className="text-danger text-sm">{error}</p>}
 
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={saving}
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-secondary hover:from-primary-hover disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-4 px-4 rounded-2xl btn-press glow-primary text-base"
-            >
-              {saving ? <Loader2 size={18} className="animate-spin" /> : null}
-              {saving ? 'Guardando...' : editingExpense ? 'Guardar cambios' : 'Agregar gasto'}
-            </button>
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={handleClose}
+                className="flex-1 py-4 px-4 glass rounded-2xl text-text-secondary font-semibold btn-press hover:text-text transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={saving}
+                className="flex-[2] flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-secondary hover:from-primary-hover disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-4 px-4 rounded-2xl btn-press glow-primary text-base"
+              >
+                {saving ? <Loader2 size={18} className="animate-spin" /> : null}
+                {saving ? 'Guardando...' : editingExpense ? 'Guardar cambios' : 'Agregar gasto'}
+              </button>
+            </div>
           </form>
         </div>
       </div>
