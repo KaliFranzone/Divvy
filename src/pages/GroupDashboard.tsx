@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { Receipt, Scale, PieChart, Plus, Users, Share2, User } from 'lucide-react'
+import { Receipt, Scale, PieChart, Plus, Users, Share2, User, LogOut } from 'lucide-react'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { formatCurrency } from '../lib/utils'
@@ -258,6 +258,13 @@ export default function GroupDashboard() {
             <button className="flex items-center gap-1.5 px-3 py-1.5 glass rounded-full text-sm text-text-secondary hover:text-text transition-colors">
               <Users size={14} />
               {members.length}
+            </button>
+            <button
+              onClick={() => navigate('/')}
+              className="flex items-center justify-center w-9 h-9 glass rounded-full text-text-secondary hover:text-danger transition-colors btn-press"
+              title="Salir del grupo"
+            >
+              <LogOut size={14} />
             </button>
           </div>
         </div>
