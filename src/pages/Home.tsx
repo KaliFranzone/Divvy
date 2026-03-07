@@ -94,23 +94,23 @@ export default function Home() {
                 className="w-full py-3 pl-10 pr-4 glass-input rounded-2xl text-text placeholder:text-text-muted focus:outline-none"
               />
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="relative min-w-0">
-                <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
+            <div className="grid grid-cols-2 gap-2 overflow-hidden">
+              <div className="relative overflow-hidden">
+                <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none z-10" />
                 <input
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full min-w-0 py-3 pl-9 pr-2 glass-input rounded-2xl text-text text-sm focus:outline-none"
+                  className="w-full py-3 pl-9 pr-1 glass-input rounded-2xl text-text text-xs focus:outline-none [&::-webkit-date-and-time-value]:text-left"
                 />
               </div>
-              <div className="relative min-w-0">
-                <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
+              <div className="relative overflow-hidden">
+                <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none z-10" />
                 <input
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full min-w-0 py-3 pl-9 pr-2 glass-input rounded-2xl text-text text-sm focus:outline-none"
+                  className="w-full py-3 pl-9 pr-1 glass-input rounded-2xl text-text text-xs focus:outline-none [&::-webkit-date-and-time-value]:text-left"
                 />
               </div>
             </div>
