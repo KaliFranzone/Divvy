@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { Receipt, Scale, PieChart, Plus, Users, Loader2, Share2 } from 'lucide-react'
+import { Receipt, Scale, PieChart, Plus, Users, Loader2, Share2, User } from 'lucide-react'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { formatCurrency } from '../lib/utils'
@@ -10,9 +10,10 @@ import AddExpenseModal from '../components/AddExpenseModal'
 import ExpenseList from '../components/ExpenseList'
 import BalancesTab from '../components/BalancesTab'
 import SummaryTab from '../components/SummaryTab'
+import ProfileTab from '../components/ProfileTab'
 import { useToast } from '../components/Toast'
 
-type Tab = 'expenses' | 'balances' | 'summary'
+type Tab = 'expenses' | 'profile' | 'balances' | 'summary'
 
 export default function GroupDashboard() {
   const { code } = useParams<{ code: string }>()
@@ -171,6 +172,7 @@ export default function GroupDashboard() {
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
     { key: 'expenses', label: 'Gastos', icon: <Receipt size={20} /> },
+    { key: 'profile', label: 'Perfil', icon: <User size={20} /> },
     { key: 'balances', label: 'Balances', icon: <Scale size={20} /> },
     { key: 'summary', label: 'Resumen', icon: <PieChart size={20} /> },
   ]
@@ -209,22 +211,21 @@ export default function GroupDashboard() {
             <div className="nav-fab opacity-50"><Plus size={28} /></div>
             <div className="max-w-lg mx-auto flex items-end px-2">
               <div className="flex flex-1 min-w-0">
-                <div className="bottom-nav-item flex-1">
-                  <div className="w-5 h-5 skeleton rounded" />
-                  <div className="w-10 h-2 skeleton" />
-                </div>
-                <div className="flex-1" />
+                {[1, 2].map((i) => (
+                  <div key={i} className="bottom-nav-item flex-1">
+                    <div className="w-5 h-5 skeleton rounded" />
+                    <div className="w-10 h-2 skeleton" />
+                  </div>
+                ))}
               </div>
               <div className="w-[72px] shrink-0" />
               <div className="flex flex-1 min-w-0">
-                <div className="bottom-nav-item flex-1">
-                  <div className="w-5 h-5 skeleton rounded" />
-                  <div className="w-10 h-2 skeleton" />
-                </div>
-                <div className="bottom-nav-item flex-1">
-                  <div className="w-5 h-5 skeleton rounded" />
-                  <div className="w-10 h-2 skeleton" />
-                </div>
+                {[3, 4].map((i) => (
+                  <div key={i} className="bottom-nav-item flex-1">
+                    <div className="w-5 h-5 skeleton rounded" />
+                    <div className="w-10 h-2 skeleton" />
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -288,6 +289,17 @@ export default function GroupDashboard() {
             onDeleted={() => loadData()}
           />
         )}
+        {activeTab === 'profile' && currentMember && group && (
+          <ProfileTab
+            currentMember={currentMember}
+            members={members}
+            expenses={expenses}
+            splits={splits}
+            memberBalances={dashboard.memberBalances}
+            transfers={dashboard.transfers}
+            groupId={group.id}
+          />
+        )}
         {activeTab === 'balances' && group && (
           <BalancesTab
             memberBalances={dashboard.memberBalances}
@@ -322,37 +334,35 @@ export default function GroupDashboard() {
           </button>
 
           <div className="max-w-lg mx-auto flex items-end px-2">
-            {/* Left half */}
+            {/* Left half - Gastos + Perfil */}
             <div className="flex flex-1 min-w-0">
-              <button
-                onClick={() => setActiveTab('expenses')}
-                className={`bottom-nav-item flex-1 ${activeTab === 'expenses' ? 'active text-primary-light' : 'text-text-muted'}`}
-              >
-                <Receipt size={20} />
-                <span>Gastos</span>
-              </button>
-              <div className="flex-1" />
+              {tabs.slice(0, 2).map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`bottom-nav-item flex-1 ${activeTab === tab.key ? 'active text-primary-light' : 'text-text-muted'}`}
+                >
+                  {tab.icon}
+                  <span>{tab.label}</span>
+                </button>
+              ))}
             </div>
 
             {/* Center spacer for FAB */}
             <div className="w-[72px] shrink-0" />
 
-            {/* Right half */}
+            {/* Right half - Balances + Resumen */}
             <div className="flex flex-1 min-w-0">
-              <button
-                onClick={() => setActiveTab('balances')}
-                className={`bottom-nav-item flex-1 ${activeTab === 'balances' ? 'active text-primary-light' : 'text-text-muted'}`}
-              >
-                <Scale size={20} />
-                <span>Balances</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('summary')}
-                className={`bottom-nav-item flex-1 ${activeTab === 'summary' ? 'active text-primary-light' : 'text-text-muted'}`}
-              >
-                <PieChart size={20} />
-                <span>Resumen</span>
-              </button>
+              {tabs.slice(2).map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`bottom-nav-item flex-1 ${activeTab === tab.key ? 'active text-primary-light' : 'text-text-muted'}`}
+                >
+                  {tab.icon}
+                  <span>{tab.label}</span>
+                </button>
+              ))}
             </div>
           </div>
         </div>
