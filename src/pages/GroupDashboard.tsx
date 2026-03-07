@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { Receipt, Scale, PieChart, Plus, Users, Loader2, Share2, User } from 'lucide-react'
+import { Receipt, Scale, PieChart, Plus, Users, Share2, User } from 'lucide-react'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { formatCurrency } from '../lib/utils'
